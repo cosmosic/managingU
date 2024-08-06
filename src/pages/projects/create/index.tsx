@@ -109,7 +109,7 @@ const CreateProject = () => {
                 </div>
               </div>
               <button
-                className="btn mt-5 border-0 bg-cyan-800 text-white"
+                className="btn mt-5 border-0 bg-blue-800 text-white"
                 type="submit"
                 disabled={createProject.isPending}
               >

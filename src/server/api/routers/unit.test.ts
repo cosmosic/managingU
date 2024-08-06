@@ -11,8 +11,8 @@ describe("testing", () => {
 
     // create our user
     const user = await caller.signUp.create({
-      email: "shwetal2@mail.com",
-      password: "12345",
+      email: "ayushidokwal@mail.com",
+      password: "Welcome@12345",
     });
 
     // session mocked
@@ -25,8 +25,8 @@ describe("testing", () => {
 
     // create project
     const input = {
-      title: "Project 1",
-      description: "project 1 details",
+      title: "Software Development",
+      description: "Software Development details",
     };
 
     // unathorized
@@ -44,8 +44,8 @@ describe("testing", () => {
 
     // signing up new user
     const secUser = await caller.signUp.create({
-      email: "shwetal@mail.com",
-      password: "1234njrg",
+      email: "ayushidokwal@mail.com",
+      password: "Welcome@123",
     });
 
     // creating new user session
@@ -63,8 +63,8 @@ describe("testing", () => {
     // create task
     const taskInput = {
       projectId: res.data.project.id,
-      title: "task 1",
-      description: "task 1 details",
+      title: "Software Development Life Cycle",
+      description: "Software Development Life Cycle details",
       tags: [],
       deadline: new Date(),
       assigneeId: "",

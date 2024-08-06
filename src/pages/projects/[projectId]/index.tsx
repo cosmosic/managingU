@@ -1,9 +1,8 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import TaskStatus from "@/components/TaskStatus";
 import { api } from "@/utils/api";
 import Link from "next/link";
-import { MdOutlineSettings } from "react-icons/md";
+import { MdOutlineSettings, MdFilterList } from "react-icons/md";
 import Button from "@/components/Button";
 import { useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -11,7 +10,7 @@ import { useSession } from "next-auth/react";
 type Filters = {
   status: "TODO" | "DOING" | "DONE" | "ALL";
   assignee: "All" | "Me" | "Unassigned";
-  sortByDeadline: boolean;
+  sortByDeadline: "None" | "Earliest" | "Latest";
 };
 
 const Tasks = () => {
@@ -19,23 +18,22 @@ const Tasks = () => {
   const projectId = parseInt(router.query.projectId as string);
 
   const { data: sessionData } = useSession();
+  const { data: project } = api.projects.get.useQuery(
+    { id: projectId },
+    { enabled: !!projectId }
+  );
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>({
     status: "ALL",
     assignee: "All",
-    sortByDeadline: true,
+    sortByDeadline: "None",
   });
 
-  const { data: project } = api.projects.get.useQuery(
-    { id: projectId },
-    { enabled: !!projectId },
-  );
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // Filter tasks based on set filters
   const tasks = useMemo(() => {
     if (!project || !sessionData) return [];
-    const filteredTasks = project.tasks.filter((task) => {
+    let filteredTasks = project.tasks.filter((task) => {
       if (task.status === filters.status || filters.status === "ALL") {
         if (filters.assignee === "All") return true;
         if (
@@ -47,25 +45,23 @@ const Tasks = () => {
       }
       return false;
     });
-    if (filters.sortByDeadline) {
-      filteredTasks.sort((a, b) => +a.deadline - +b.deadline);
+    if (filters.sortByDeadline === "Earliest") {
+      filteredTasks.sort((a, b) => +new Date(a.deadline) - +new Date(b.deadline));
+    } else if (filters.sortByDeadline === "Latest") {
+      filteredTasks.sort((a, b) => +new Date(b.deadline) - +new Date(a.deadline));
     }
     return filteredTasks;
   }, [project, filters, sessionData]);
 
   const handleStatusFilterChange = (status: Filters["status"]) => {
     setFilters((prev) => ({ ...prev, status }));
-    setDropdownOpen(false);
   };
 
   const handleAssigneeFilterChange = (assignee: Filters["assignee"]) => {
     setFilters((prev) => ({ ...prev, assignee }));
-    setDropdownOpen(false);
   };
 
-  const handleDeadlineFilterChange = (
-    sortByDeadline: Filters["sortByDeadline"],
-  ) => {
+  const handleDeadlineFilterChange = (sortByDeadline: Filters["sortByDeadline"]) => {
     setFilters((prev) => ({ ...prev, sortByDeadline }));
   };
 
@@ -73,148 +69,111 @@ const Tasks = () => {
     <>
       <Head>
         <title>Project tasks page</title>
-        <meta
-          name="description"
-          content="Shows all tasks created within a project."
-        />
+        <meta name="description" content="Shows all tasks created within a project." />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex flex-col bg-white p-5 sm:px-28 sm:py-10">
-        <div className="mb-10 flex items-center">
-          <div className="flex flex-1 items-center gap-3 ">
-            <h1 className="text-2xl font-semibold text-gray-700">
-              {project?.title}
-            </h1>
+      <main className="flex flex-col p-5 sm:px-28 sm:py-10 bg-gray-100">
+        <div className="mb-10 flex items-center justify-between">
+          <div className="flex flex-1 items-center gap-3">
+            <h1 className="text-2xl font-semibold text-gray-700">{project?.title}</h1>
             <div
               onClick={() => void router.push(`/projects/${projectId}/update`)}
-              className="cursor-pointer"
+              className="cursor-pointer text-gray-700 hover:text-gray-900"
             >
-              <MdOutlineSettings size={18} />
+              <MdOutlineSettings size={24} />
             </div>
           </div>
 
-          <Link href={`/projects/${projectId}/tasks/create`}>
-            <Button variant="primary">Add task</Button>
-          </Link>
-        </div>
-
-        {/* filters */}
-
-        <div className="mb-10 flex flex-wrap items-center gap-5">
-          {/* status filter */}
           <div className="flex items-center gap-3">
-            <div>Status</div>
-            <div className="dropdown">
-              <div
-                tabIndex={0}
-                role="button"
-                className="border-bg-gray-500 cursor-pointer rounded-full border px-4 py-2"
-                onClick={() => setDropdownOpen(true)}
-              >
-                {filters.status}
-              </div>
-              {dropdownOpen && (
-                <ul
-                  tabIndex={0}
-                  className="menu dropdown-content absolute z-50 w-52 rounded-box bg-zinc-100 p-2 shadow"
-                >
-                  <li onClick={() => handleStatusFilterChange("TODO")}>
-                    <a>Todo</a>
-                  </li>
-                  <li onClick={() => handleStatusFilterChange("DOING")}>
-                    <a>Doing</a>
-                  </li>
-                  <li onClick={() => handleStatusFilterChange("DONE")}>
-                    <a>Done</a>
-                  </li>
-                  <li onClick={() => handleStatusFilterChange("ALL")}>
-                    <a>All</a>
-                  </li>
-                </ul>
-              )}
-            </div>
-          </div>
-          {/* assginee filter */}
-          <div className="flex items-center gap-3">
-            <div>Assignee</div>
-            <div className="dropdown">
-              <div
-                tabIndex={0}
-                role="button"
-                className="border-bg-gray-500 cursor-pointer rounded-full border px-4 py-2"
-                onClick={() => setDropdownOpen(true)}
-              >
-                {filters.assignee}
-              </div>
-              {dropdownOpen && (
-                <ul
-                  tabIndex={0}
-                  className="menu dropdown-content absolute z-50 w-52 rounded-box bg-zinc-100 p-2 shadow"
-                >
-                  <li onClick={() => handleAssigneeFilterChange("All")}>
-                    <a>All</a>
-                  </li>
-                  <li onClick={() => handleAssigneeFilterChange("Unassigned")}>
-                    <a>Unassigned</a>
-                  </li>
-                  <li onClick={() => handleAssigneeFilterChange("Me")}>
-                    <a>Me</a>
-                  </li>
-                </ul>
-              )}
-            </div>
-          </div>
-
-          {/* sort by deadline */}
-          <div className="flex items-center gap-3">
-            <div>Sort by deadline</div>
-            <input
-              type="checkbox"
-              defaultChecked
-              className="checkbox-success checkbox checkbox-sm"
-              onChange={() =>
-                handleDeadlineFilterChange(!filters.sortByDeadline)
-              }
-            />
+            <Button variant="primary" onClick={() => setIsFilterOpen(!isFilterOpen)}>
+              <MdFilterList size={24} />
+            </Button>
+            <Link href={`/projects/${projectId}/tasks/create`}>
+              <Button variant="primary">Add Task</Button>
+            </Link>
           </div>
         </div>
 
-        {/* show created projects */}
+        {isFilterOpen && (
+          <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Filters</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">Status</label>
+                <div className="flex gap-2">
+                  {["ALL", "TODO", "DOING", "DONE"].map((status) => (
+                    <button
+                      key={status}
+                      className={`px-4 py-2 rounded-md border ${
+                        filters.status === status ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+                      }`}
+                      onClick={() => handleStatusFilterChange(status as Filters["status"])}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">Assignee</label>
+                <div className="flex gap-2">
+                  {["All", "Me", "Unassigned"].map((assignee) => (
+                    <button
+                      key={assignee}
+                      className={`px-4 py-2 rounded-md border ${
+                        filters.assignee === assignee ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+                      }`}
+                      onClick={() => handleAssigneeFilterChange(assignee as Filters["assignee"])}
+                    >
+                      {assignee}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="block text-gray-700 font-medium mb-2">Sort by Deadline</label>
+                <div className="flex gap-2">
+                  {["None", "Earliest", "Latest"].map((sortBy) => (
+                    <button
+                      key={sortBy}
+                      className={`px-4 py-2 rounded-md border ${
+                        filters.sortByDeadline === sortBy ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+                      }`}
+                      onClick={() => handleDeadlineFilterChange(sortBy as Filters["sortByDeadline"])}
+                    >
+                      {sortBy}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-        <div className="z-10 overflow-x-auto">
-          <table className="table">
-            <thead className="text-gray-500 ">
-              <tr className="border-gray-400">
-                <th className="text-lg">Title</th>
-                <th className="text-lg">Status</th>
-                <th className="text-lg">Assignee</th>
-                <th className="text-lg">Deadline</th>
-              </tr>
-            </thead>
-            <tbody>
-              {!!tasks &&
-                tasks.map((task, i) => (
-                  <tr
-                    className="cursor-pointer border-gray-200 p-4 hover:bg-cyan-200 hover:bg-opacity-20"
-                    key={i}
-                    onClick={() =>
-                      router.push(`/projects/${projectId}/tasks/${task.id}`)
-                    }
-                  >
-                    <td className="text-gray-500">{task.title}</td>
-                    <td>
-                      <TaskStatus status={task.status} size="small" />
-                    </td>
-                    <td>
-                      {!!task.assignee
-                        ? task.assignee?.username
-                        : "Not assigned"}
-                    </td>
-                    <td>{task.deadline.toDateString()}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {["TODO", "DOING", "DONE"].map((status) => (
+            <div key={status} className="bg-white p-4 rounded-lg shadow-md">
+              <h2 className="mb-4 text-xl font-semibold text-gray-700">{status}</h2>
+              <div className="space-y-4">
+                {tasks
+                  .filter((task) => task.status === status)
+                  .map((task) => (
+                    <div key={task.id} className="bg-gray-50 p-4 rounded-lg shadow-sm hover:bg-gray-100">
+                      <h3 className="text-lg font-semibold text-gray-800">{task.title}</h3>
+                      <p className="text-gray-600">Assignee: {task.assignee?.username || "Unassigned"}</p>
+                      <p className="text-gray-600">Deadline: {new Date(task.deadline).toLocaleDateString()}</p>
+                      <div className="mt-2 flex items-center justify-between">
+                        <MdOutlineSettings
+                          className="cursor-pointer text-gray-700 hover:text-gray-900"
+                          size={18}
+                          onClick={() => void router.push(`/projects/${projectId}/tasks/${task.id}/update`)}
+                        />
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          ))}
         </div>
       </main>
     </>

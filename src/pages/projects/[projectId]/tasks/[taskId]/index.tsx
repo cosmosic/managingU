@@ -43,7 +43,7 @@ const TaskDetails = () => {
               Assigned to: {task?.assignee?.username}
             </p>
           </div>
-          {/* <button className="btn-sm rounded-full border-0 bg-cyan-700 text-white sm:btn sm:rounded-full sm:border-0 sm:bg-cyan-700 sm:text-white"></button> */}
+          {/* <button className="btn-sm rounded-full border-0 bg-blue-700 text-white sm:btn sm:rounded-full sm:border-0 sm:bg-blue-700 sm:text-white"></button> */}
           <Button
             onClick={() =>
               void router.push(`/projects/${projectId}/tasks/${taskId}/update`)
@@ -65,7 +65,7 @@ const TaskDetails = () => {
           {task?.tags.map((tag, i) => (
             <div
               key={i}
-              className="flex items-center rounded-full bg-cyan-500 px-2 py-1 text-xs text-white"
+              className="flex items-center rounded-full bg-blue-500 px-2 py-1 text-xs text-white"
             >
               {tag}
             </div>

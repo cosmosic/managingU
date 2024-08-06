@@ -15,7 +15,7 @@ export default function Projects() {
   const { data: projects } = api.projects.getUserAllProjects.useQuery();
   const updateUsername = api.users.update.useMutation();
 
-  const [username, setUsername] = useState<string>("");
+  const [username, setUsername] = useState<string>(sessionData?.user.username || "");
 
   useEffect(() => {
     if (!sessionData) return;
@@ -25,11 +25,10 @@ export default function Projects() {
   const handleUsernameChange = async () => {
     const toastId = toast("Updating username", { isLoading: true });
     const modal = document.getElementById("username_modal");
-    // @ts-expect-error: Let's ignore a compile error
-    if (modal) modal.close?.(); // eslint-disable-line
+    if (modal) modal.close?.();
     await updateUsername.mutateAsync({ username }).catch(() => {
       toast.update(toastId, {
-        render: "Error occured",
+        render: "Error occurred",
         isLoading: false,
         type: "error",
         autoClose: 5000,
@@ -47,77 +46,81 @@ export default function Projects() {
   return (
     <>
       <Head>
-        <title>Projects page</title>
+        <title>Your Projects</title>
         <meta
           name="description"
-          content="Displays all projects created by user"
+          content="Manage all your projects efficiently in one place."
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex flex-1 flex-col bg-white px-28 py-10 ">
-        {/* set username modal */}
+      <main className="flex flex-1 flex-col bg-gradient-to-r from-blue-50 to-blue-100 p-10">
         <dialog id="username_modal" className="modal">
-          <div className="modal-box bg-white">
+          <div className="modal-box bg-white rounded-lg shadow-lg p-5">
             <h3 className="mb-3 text-lg font-bold text-gray-700">
-              Set username
+              Set Username
             </h3>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="mb-5 w-full rounded-md border bg-white p-2"
+              className="mb-5 w-full rounded-md border bg-gray-50 p-2"
+              placeholder="Enter your new username"
             />
             <Button variant="primary" onClick={handleUsernameChange}>
-              Submit
+              Update
             </Button>
           </div>
           <form method="dialog" className="modal-backdrop">
-            <button>close</button>
+            <button>Close</button>
           </form>
         </dialog>
-        <div className="mb-10 flex flex-col items-center justify-center gap-5 sm:flex-row md:justify-start">
-          <div className="flex flex-1 flex-wrap items-center justify-center gap-2 sm:justify-start">
-            <h1 className="text-center text-2xl font-medium text-cyan-800 sm:text-left sm:text-4xl">
-              Hi {username}
-            </h1>
+
+        <div className="bg-white shadow-lg rounded-lg p-6 mb-10 text-center">
+          <h1 className="text-4xl font-bold text-blue-800 mb-4">
+            Welcome Back, {username}!
+          </h1>
+          <div className="flex justify-center items-center gap-2">
             <div
-              onClick={
-                () =>
-                  // @ts-expect-error: Let's ignore a compile error
-                  document.getElementById("username_modal").showModal() // eslint-disable-line
-              }
-              className="cursor-pointer"
+              onClick={() => document.getElementById("username_modal").showModal()}
+              className="cursor-pointer text-blue-600"
             >
               <MdEdit size={25} />
             </div>
+            <Button
+              variant="primary"
+              onClick={() => void router.push("/projects/create")}
+            >
+              Create a New Project
+            </Button>
           </div>
-
-          <Button
-            variant="primary"
-            onClick={() => void router.push("/projects/create")}
-          >
-            Create Project
-          </Button>
         </div>
+
         <h3 className="mb-8 text-center text-xl font-semibold text-gray-600 md:text-left">
-          Projects Created
+          Your Projects
         </h3>
 
-        {/* show created projects */}
-        <div className="flex flex-wrap justify-center gap-6 md:justify-start">
-          {projects?.length === 0 && (
-            <p className="text-center">No projects created yet.</p>
-          )}
-          {!!projects &&
-            projects.map((project, i) => (
-              <div key={i}>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {projects?.length === 0 ? (
+            <div className="text-center text-gray-500">
+              <p>No projects created yet.</p>
+              <Button
+                variant="secondary"
+                onClick={() => void router.push("/projects/create")}
+              >
+                Start a Project
+              </Button>
+            </div>
+          ) : (
+            projects && projects.map((project, i) => (
+              <div key={i} className="p-2">
                 <ProjectCard
                   id={project.id}
                   title={project.title}
                   description={project.description}
                 />
               </div>
-            ))}
+            ))
+          )}
         </div>
       </main>
     </>

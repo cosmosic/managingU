@@ -24,7 +24,7 @@ const Navbar = () => {
   return (
     <div className="flex items-center justify-between gap-4 bg-white px-4 py-4 sm:px-12">
       <Link href="/projects">
-        <div className="font-medium text-gray-700">Dashboard</div>
+        <div className="font-medium text-gray-700">ManagingU</div>
       </Link>
       <div className="">
         {!!sessionData && (

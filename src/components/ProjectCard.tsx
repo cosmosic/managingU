@@ -9,9 +9,12 @@ type ProjectCardProps = {
 const ProjectCard = ({ id, title, description }: ProjectCardProps) => {
   return (
     <Link href={`/projects/${id}`}>
-      <div className="h-40 w-60 translate-y-1 rounded-xl bg-white p-4 shadow-lg shadow-slate-200 duration-150 ease-in-out hover:scale-95">
-        <p className="text-md mb-5 font-medium text-cyan-900">{title}</p>
-        <p className="line-clamp-3 text-sm text-cyan-800">{description}</p>
+      <div className="relative h-48 w-full max-w-xs transform overflow-hidden rounded-xl bg-white shadow-md hover:shadow-xl transition-shadow duration-300 ease-in-out">
+        <div className="absolute inset-0 h-1 w-full bg-gradient-to-r from-blue-500 to-teal-400"></div>
+        <div className="relative z-10 flex flex-col p-6">
+          <p className="text-lg font-semibold text-gray-900 mb-2">{title}</p>
+          <p className="text-sm text-gray-700 line-clamp-3">{description}</p>
+        </div>
       </div>
     </Link>
   );

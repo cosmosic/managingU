@@ -18,7 +18,7 @@ const CreateTask = () => {
       .mutateAsync({ ...values, projectId })
       .catch(() => {
         toast.update(toastId, {
-          render: "Error occured",
+          render: "Error occurred",
           isLoading: false,
           type: "error",
           autoClose: 5000,
@@ -43,11 +43,13 @@ const CreateTask = () => {
         <meta name="description" content="Update task details" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <TaskForm
-        header="Create Task"
-        onSubmit={onSubmit}
-        projectId={projectId}
-      />
+      <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+        <TaskForm
+          header="Create Task"
+          onSubmit={onSubmit}
+          projectId={projectId}
+        />
+      </div>
     </>
   );
 };

@@ -1,31 +1,21 @@
-import React from "react";
+import { FC, ButtonHTMLAttributes } from "react";
 import clsx from "clsx";
 
-type ButtonProps = {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary";
-  onClick?: () => void | Promise<void>;
-  disabled?: boolean;
-  children?: React.ReactNode;
-};
+}
 
-const Button = ({
-  variant = "primary",
-  onClick,
-  children,
-  disabled = false,
-}: ButtonProps) => {
+const Button: FC<ButtonProps> = ({ children, variant = "primary", ...props }) => {
   return (
     <button
       className={clsx(
-        "btn rounded-full px-3 py-1 font-semibold no-underline hover:cursor-pointer hover:bg-cyan-600 sm:px-5",
+        "rounded-md px-4 py-2 font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2",
         {
-          "border-0 bg-cyan-800 text-white": variant === "primary",
-          "border border-cyan-800 bg-white text-cyan-800 hover:border-0 hover:text-white":
-            variant === "secondary",
-        },
+          "bg-blue-600 text-white hover:bg-blue-500 focus:ring-blue-500": variant === "primary",
+          "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-gray-300": variant === "secondary",
+        }
       )}
-      disabled={disabled}
-      onClick={onClick}
+      {...props}
     >
       {children}
     </button>
