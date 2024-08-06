@@ -23,7 +23,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
     if (session) return;
     if (router.pathname === "/" || router.pathname === "/signUp") return;
     void router.push("/");
-  }, [session]);
+  }, [router, session]); // Include session in the dependency array
 
   return (
     <SessionProvider session={session}>
@@ -31,7 +31,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <main
         className={clsx(
           GeistSans.className,
-          "flex min-h-screen flex-col bg-white",
+          "flex min-h-screen flex-col bg-white"
         )}
       >
         <Navbar />

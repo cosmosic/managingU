@@ -20,18 +20,4 @@ const config = {
   transpilePackages: ["geist"],
 };
 
-// next.config.js
-// module.exports = {
-//   reactStrictMode: true,
-//   async redirects() {
-//     return [
-//       {
-//         source: '/api/auth/signin',
-//         destination: '/auth/signin',
-//         permanent: true,
-//       },
-//     ];
-//   },
-// };
-
 export default config;

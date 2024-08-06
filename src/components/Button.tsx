@@ -1,5 +1,5 @@
-import { FC, ButtonHTMLAttributes } from "react";
-import clsx from "clsx";
+import type  { FC, ButtonHTMLAttributes } from "react";
+import  clsx from "clsx";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary";

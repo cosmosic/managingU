@@ -33,7 +33,7 @@ const Tasks = () => {
 
   const tasks = useMemo(() => {
     if (!project || !sessionData) return [];
-    let filteredTasks = project.tasks.filter((task) => {
+    const filteredTasks = project.tasks.filter((task) => {
       if (task.status === filters.status || filters.status === "ALL") {
         if (filters.assignee === "All") return true;
         if (
@@ -160,7 +160,7 @@ const Tasks = () => {
                   .map((task) => (
                     <div key={task.id} className="bg-gray-50 p-4 rounded-lg shadow-sm hover:bg-gray-100">
                       <h3 className="text-lg font-semibold text-gray-800">{task.title}</h3>
-                      <p className="text-gray-600">Assignee: {task.assignee?.username || "Unassigned"}</p>
+                      <p className="text-gray-600">Assignee: {task.assignee?.username ?? "Unassigned"}</p>
                       <p className="text-gray-600">Deadline: {new Date(task.deadline).toLocaleDateString()}</p>
                       <div className="mt-2 flex items-center justify-between">
                         <MdOutlineSettings

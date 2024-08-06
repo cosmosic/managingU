@@ -1,12 +1,13 @@
+// /src/pages/projects/index.tsx
+import React, { useEffect, useState } from "react";
+import { MdEdit } from "react-icons/md";
+import { toast } from "react-toastify";
 import Button from "@/components/Button";
 import ProjectCard from "@/components/ProjectCard";
 import { api } from "@/utils/api";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { MdEdit } from "react-icons/md";
-import { toast } from "react-toastify";
 
 export default function Projects() {
   const router = useRouter();
@@ -15,17 +16,18 @@ export default function Projects() {
   const { data: projects } = api.projects.getUserAllProjects.useQuery();
   const updateUsername = api.users.update.useMutation();
 
-  const [username, setUsername] = useState<string>(sessionData?.user.username || "");
+  const [username, setUsername] = useState<string>(sessionData?.user?.username ?? "");
 
   useEffect(() => {
-    if (!sessionData) return;
-    setUsername(sessionData?.user.username);
+    if (sessionData) {
+      setUsername(sessionData.user?.username ?? "");
+    }
   }, [sessionData]);
 
   const handleUsernameChange = async () => {
     const toastId = toast("Updating username", { isLoading: true });
-    const modal = document.getElementById("username_modal");
-    if (modal) modal.close?.();
+    const modal = document.getElementById("username_modal") as HTMLDialogElement; // Typecast here
+    if (modal) modal.close();
     await updateUsername.mutateAsync({ username }).catch(() => {
       toast.update(toastId, {
         render: "Error occurred",
@@ -81,7 +83,7 @@ export default function Projects() {
           </h1>
           <div className="flex justify-center items-center gap-2">
             <div
-              onClick={() => document.getElementById("username_modal").showModal()}
+              onClick={() => (document.getElementById("username_modal") as HTMLDialogElement).showModal()} // Typecast here as well
               className="cursor-pointer text-blue-600"
             >
               <MdEdit size={25} />
@@ -111,7 +113,7 @@ export default function Projects() {
               </Button>
             </div>
           ) : (
-            projects && projects.map((project, i) => (
+            projects?.map((project, i) => (
               <div key={i} className="p-2">
                 <ProjectCard
                   id={project.id}
@@ -121,6 +123,7 @@ export default function Projects() {
               </div>
             ))
           )}
+
         </div>
       </main>
     </>
